@@ -1,0 +1,59 @@
+version: 0.1.0.{build}
+skip_tags: false
+
+# Operating system (build VM template)
+os: Visual Studio 2015
+
+branches:
+  # blacklist gh-pages, since the documentation branch shouldn't be built
+  except:
+    - gh-pages
+
+environment:
+  releaseVersion: 0.1.0
+  packageVersion: 0.1.0
+
+assembly_info:
+  patch: true
+  file: VersionInfo.cs
+  assembly_version: "$(releaseVersion)"
+  assembly_file_version: "{version}"
+  assembly_informational_version: "$(packageVersion)"
+
+nuget:
+  account_feed: true
+  disable_publish_on_pr: true
+
+platform: Any CPU
+
+configuration: Release
+
+before_build:
+  - nuget restore
+
+build:
+  project: ContractOnlyStoredProcedures.sln
+  parallel: true
+  verbosity: quiet
+
+test:
+  assemblies:
+    - ContractOnlyStoredProcedures.Tests.dll
+    - ContractOnlyStoredProcedures.Tests-NET40.dll
+
+# create the nuget package artifacts
+after_test:
+  - ps: nuget pack ContractOnlyStoredProcedures.nuspec -Symbols -NonInteractive -Verbosity detailed -Version $env:packageVersion
+
+artifacts:
+  - path: '*.nupkg'
+
+deploy:
+  - provider: NuGet
+    on:
+      branch: master
+      appveyor_repo_tag: true   # Only tags should be released to nuget, as they are releases
+    api_key:
+      secure: YpmJQ9N6F0dfai0xFAoerzB7nruq9NOlhDquhAliwy5cS2A87wU7U+X4Q5eH8vyx
+    skip_symbols: false
+    artifact: /.*\.nupkg/

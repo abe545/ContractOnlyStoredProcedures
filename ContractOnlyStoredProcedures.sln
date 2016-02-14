@@ -3,7 +3,44 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContractOnlyStoredProcedures", "ContractOnlyStoredProcedures\ContractOnlyStoredProcedures.csproj", "{1A83ED83-327F-4664-A3D7-6B2626A96278}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContractOnlyStoredProcedures-NET40", "ContractOnlyStoredProcedures-NET40\ContractOnlyStoredProcedures-NET40.csproj", "{FE6A555A-FFD3-4143-8E5A-FBCDF44F53DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContractOnlyStoredProcedures.Tests", "ContractOnlyStoredProcedures.Tests\ContractOnlyStoredProcedures.Tests.csproj", "{F0522019-C198-43D3-BA07-69B7C3FD3F03}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContractOnlyStoredProcedures.Tests-NET40", "ContractOnlyStoredProcedures.Tests-NET40\ContractOnlyStoredProcedures.Tests-NET40.csproj", "{60CD92EB-3843-4550-8CF9-86717ADA82E4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{97AD558C-0958-44A4-A50F-BE729068BF5F}"
+	ProjectSection(SolutionItems) = preProject
+		appveyor.yml = appveyor.yml
+		ContractOnlyStoredProcedures.nuspec = ContractOnlyStoredProcedures.nuspec
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1A83ED83-327F-4664-A3D7-6B2626A96278}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A83ED83-327F-4664-A3D7-6B2626A96278}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A83ED83-327F-4664-A3D7-6B2626A96278}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A83ED83-327F-4664-A3D7-6B2626A96278}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE6A555A-FFD3-4143-8E5A-FBCDF44F53DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE6A555A-FFD3-4143-8E5A-FBCDF44F53DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE6A555A-FFD3-4143-8E5A-FBCDF44F53DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE6A555A-FFD3-4143-8E5A-FBCDF44F53DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0522019-C198-43D3-BA07-69B7C3FD3F03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0522019-C198-43D3-BA07-69B7C3FD3F03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0522019-C198-43D3-BA07-69B7C3FD3F03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0522019-C198-43D3-BA07-69B7C3FD3F03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60CD92EB-3843-4550-8CF9-86717ADA82E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60CD92EB-3843-4550-8CF9-86717ADA82E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60CD92EB-3843-4550-8CF9-86717ADA82E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60CD92EB-3843-4550-8CF9-86717ADA82E4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection

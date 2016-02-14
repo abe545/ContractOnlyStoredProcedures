@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+    <metadata>
+        <id>ContractOnlyStoredProcedures</id>
+        <version>0.0.0</version> <!-- Will be set during package creation in appveyor -->
+        <title>Contract Only Stored Procedures</title>
+        <authors>Abraham Heidebrecht</authors>
+        <projectUrl>https://github.com/abe545/ContractOnlyStoredProcedures</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Easily call stored procedures by writing an interface that describes their names, inputs, and results. Uses the CodeOnlyStoredProcedures library to acually execute the stored procedures.</description>
+        <releaseNotes>0.1.0
+Initial Release
+* Includes ability to automatically implement an interface to call stored procedures via the methods defined in the interface.
+* Should support all basic stored procedures supported by CodeOnlyStoredProcedures library such as multiple result sets, output parameters,
+  and automatic hierarchy building from multiple result sets.
+* Because it uses the CodeOnlyStoredProcedures library, you can setup global transformers to massage the data, and even map an interface
+  to a concrete implementation.</releaseNotes>
+        <tags>StoredProcedure EntityFramework EF</tags>
+        <dependencies>
+            <group targetFramework=".NETFramework4.0">
+                <dependency id="CodeOnlyStoredProcedures" version="2.2.4" />
+            </group>
+            <group targetFramework=".NETFramework4.5">
+              <dependency id="CodeOnlyStoredProcedures" version="2.2.4" />
+            </group>
+        </dependencies>
+        <references>
+            <reference file="ContractOnlyStoredProcedures.dll" />
+        </references>
+    </metadata>
+    <files>
+      <file src="ContractOnlyStoredProcedures\Bin\Release\**\ContractOnlyStoredProcedures*" exclude="**\*.old" target="lib\net45" />
+      <file src="ContractOnlyStoredProcedures-NET40\Bin\Release\**\ContractOnlyStoredProcedures*" exclude="**\*.old" target="lib\net40" />
+      <file src="**\*.cs" exclude="*Test*\**\*;ContractOnlyStoredProcedures*\obj\**\*" target="src" />
+    </files>
+</package>
