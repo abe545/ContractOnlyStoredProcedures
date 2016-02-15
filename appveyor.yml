@@ -10,8 +10,8 @@ branches:
     - gh-pages
 
 init:
-  - $env:releaseVersion = "0.2.0"
-  - $env:packageVersion = if (Test-Path env:\APPVEYOR_REPO_TAG_NAME) { "$env.APPVEYOR_REPO_TAG_NAME" } else { "$env:releaseVersion" }
+  - ps: $env:releaseVersion = "0.2.0"
+  - ps: $env:packageVersion = if (Test-Path env:\APPVEYOR_REPO_TAG_NAME) { "$env.APPVEYOR_REPO_TAG_NAME" } else { "$env:releaseVersion" }
 
 assembly_info:
   patch: true
