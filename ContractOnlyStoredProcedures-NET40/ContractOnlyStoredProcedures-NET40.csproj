@@ -118,8 +118,8 @@
     <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CodeOnlyStoredProcedure, Version=2.2.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CodeOnlyStoredProcedures.2.2.4\lib\net40\CodeOnlyStoredProcedure.dll</HintPath>
+    <Reference Include="CodeOnlyStoredProcedure, Version=2.2.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CodeOnlyStoredProcedures.2.2.5-pre1\lib\net40\CodeOnlyStoredProcedure.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">

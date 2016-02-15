@@ -33,8 +33,9 @@ namespace CodeOnlyStoredProcedure
             var returnType = method.ReturnType;
             var isAsync = typeof(Task).IsAssignableFrom(returnType);
             var spType = typeof(StoredProcedure);
+            var methodParms = method.GetParameters();
 
-            parameters = method.GetParameters().Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToList();
+            parameters = methodParms.Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToList();
 
             if (isAsync && parameters.Any(p => p.IsByRef))
                 throw new NotSupportedException("Can not return an output parameter from a stored procedure asynchronously.");
@@ -86,18 +87,38 @@ namespace CodeOnlyStoredProcedure
 
             closureParameters = new List<ParameterExpression>();
             afterExecutionSteps = new List<Expression>();
-            foreach (var p in parameters)
+            for (int i = 0; i < parameters.Count; i++)
             {
+                var p = parameters[i];
+
                 if (p.IsByRef)
                 {
                     var outputValue = Expression.Parameter(p.Type, "o");
                     var outputTemp = Expression.Parameter(p.Type, $"{p.Name}_Temp");
                     var setter = Expression.Lambda(typeof(Action<>).MakeGenericType(p.Type), Expression.Assign(outputTemp, outputValue), outputValue);
-                    var gwio = GetWithInputOutput(spType, p.Type);
-                    var args = new Expression[] { sp, Expression.Constant(p.Name), p, setter }.Concat(
-                        gwio.GetParameters().Skip(4).Select(ip => Expression.Constant(ip.DefaultValue, ip.ParameterType))).ToArray();
-                    sp = Expression.Call(gwio, args);
 
+                    var mp = methodParms[i];
+
+                    if (mp.IsIn)
+                    {
+                        var gwio = GetWithInputOutput(spType, p.Type);
+                        var args = new Expression[] { sp, Expression.Constant(p.Name), p, setter }.Concat(
+                            gwio.GetParameters().Skip(4).Select(ip => Expression.Constant(ip.DefaultValue, ip.ParameterType))).ToArray();
+                        sp = Expression.Call(gwio, args);
+                    }
+                    else if (mp.Name.Equals("returnValue", StringComparison.InvariantCultureIgnoreCase) && p.Type == typeof(int))
+                    {
+                        var wrv = GetWithReturnValue(spType);
+                        var args = new Expression[] { sp, setter };
+                        sp = Expression.Call(wrv, args);
+                    }
+                    else
+                    {
+                        var gwo = GetWithOutput(spType, p.Type);
+                        var args = new Expression[] { sp, Expression.Constant(p.Name), setter }.Concat(
+                            gwo.GetParameters().Skip(3).Select(ip => Expression.Constant(ip.DefaultValue, ip.ParameterType))).ToArray();
+                        sp = Expression.Call(gwo, args);
+                    }
                     closureParameters.Add(outputTemp);
                     afterExecutionSteps.Add(Expression.Assign(p, outputTemp));
                 }
@@ -218,6 +239,16 @@ namespace CodeOnlyStoredProcedure
         private static MethodInfo GetWithInput(params Type[] typeParameters)
         {
             return GetExtensionMethod(nameof(StoredProcedureExtensions.WithParameter), typeParameters, types => types.Count() == 3);
+        }
+
+        private static MethodInfo GetWithOutput(params Type[] typeParameters)
+        {
+            return GetExtensionMethod(nameof(StoredProcedureExtensions.WithOutputParameter), typeParameters, types => types.Count() == 6);
+        }
+
+        private static MethodInfo GetWithReturnValue(params Type[] typeParameters)
+        {
+            return GetExtensionMethod(nameof(StoredProcedureExtensions.WithReturnValue), typeParameters);
         }
 
         private static MethodInfo GetWithInputOutput(params Type[] typeParameters)

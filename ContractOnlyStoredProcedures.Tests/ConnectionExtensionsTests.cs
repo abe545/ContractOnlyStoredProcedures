@@ -126,6 +126,22 @@ namespace CodeOnlyStoredProcedure.Tests
     }
 
     [Subject("GenerateProxy"), Tags("SmokeTest")]
+    public class when_calling_generated_method_on_database_that_returns_value_from_input_as_out_parameter
+    {
+        static IDbConnection Subject;
+        static int Result;
+
+        Establish context = () => Subject = new SqlConnection(SmokeDb.Connection);
+        Because of = () =>
+        {
+            var proxy = Subject.GenerateProxy<IReturnValueTest>();
+            proxy.usp_GetId("Abe", out Result);
+        };
+
+        It should_have_returned_length_of_input = () => Result.Should().Be(3);
+    }
+
+    [Subject("GenerateProxy"), Tags("SmokeTest")]
     public class when_calling_generated_method_on_database_that_has_an_output_parameter
     {
         static IDbConnection Subject;
@@ -159,5 +175,10 @@ namespace CodeOnlyStoredProcedure.Tests
     public interface IOutputTest
     {
         void usp_TimesTwo(int input, out int output);
+    }
+
+    public interface IReturnValueTest
+    {
+        void usp_GetId(string name, out int returnValue);
     }
 }

@@ -237,6 +237,7 @@ namespace CodeOnlyStoredProcedure.Tests
 
         mspec.It should_be_named_WithArgument = () => StoredProcedure.Name.Should().Be("WithArgument");
         mspec.It should_have_dbo_schema = () => StoredProcedure.Schema.Should().Be("dbo");
+        mspec.It should_show_parameter_values_from_ToString = () => StoredProcedure.ToString().Should().Be("[dbo].[WithArgument](@name = 'foo')");
     }
 
     [Subject("CreateStoredProcedure")]
@@ -251,9 +252,9 @@ namespace CodeOnlyStoredProcedure.Tests
 
         mspec.It should_be_named_WithArgument = () => StoredProcedure.Name.Should().Be("WithArgument");
         mspec.It should_have_dbo_schema = () => StoredProcedure.Schema.Should().Be("dbo");
+        mspec.It should_show_parameter_values_from_ToString = () => StoredProcedure.ToString().Should().Be("[dbo].[WithArgument](@name = 'bar')");
     }
 
-    public delegate StoredProcedure WithOutputAndNoResults(out int result);
     [Subject("CreateStoredProcedure")]
     public class when_creating_a_stored_procedure_that_has_an_output_parameter : MethodGeneratorTestBase
     {
@@ -267,6 +268,23 @@ namespace CodeOnlyStoredProcedure.Tests
 
         mspec.It should_be_named_WithOutputArgument = () => StoredProcedure.Name.Should().Be("WithOutputArgument");
         mspec.It should_have_dbo_schema = () => StoredProcedure.Schema.Should().Be("dbo");
+        mspec.It should_show_parameter_values_from_ToString = () => StoredProcedure.ToString().Should().Be("[dbo].[WithOutputArgument]([Out] @result)");
+    }
+    
+    [Subject("CreateStoredProcedure")]
+    public class when_creating_a_stored_procedure_that_has_an_output_parameter_which_is_returnValue : MethodGeneratorTestBase
+    {
+        static StoredProcedure StoredProcedure;
+        Because of = () =>
+        {
+            int returnValue;
+            StoredProcedure = GetAndVerifyCreateStoredProcedureResultExpression<WithOutputAndNoResults>(
+                typeof(IWithReturnValueMethods).GetMethod(nameof(IWithReturnValueMethods.WithReturnValueAsArgument)))(out returnValue);
+        };
+
+        mspec.It should_be_named_WithOutputArgument = () => StoredProcedure.Name.Should().Be("WithReturnValueAsArgument");
+        mspec.It should_have_dbo_schema = () => StoredProcedure.Schema.Should().Be("dbo");
+        mspec.It should_show_parameter_values_from_ToString = () => StoredProcedure.ToString().Should().Be("[dbo].[WithReturnValueAsArgument](@returnValue)");
     }
 
     [Subject("CreateStoredProcedure")]
@@ -337,6 +355,35 @@ namespace CodeOnlyStoredProcedure.Tests
             Result = method(Connection, 30);
         };
         mspec.It should_have_commandText_representing_the_stored_procedure = () => Command.Object.CommandText.Should().Be("[dbo].[WithReturnValue]");
+        mspec.It should_have_executing_the_command_once = () => Command.Verify(c => c.ExecuteNonQuery(), Times.Once());
+        mspec.It should_have_setup_the_parameter_type = () => ReturnParameter.Object.DbType.Should().Be(DbType.Int32);
+        mspec.It should_have_setup_the_parameter_direction = () => ReturnParameter.Object.Direction.Should().Be(ParameterDirection.ReturnValue);
+        mspec.It should_have_returned_the_result = () => Result.Should().Be(1);
+    }
+
+    [Subject("CreateMethod")]
+    public class when_creating_a_method_that_has_return_value_via_output_parameter : MethodGeneratorTestBase
+    {
+        static Mock<IDbCommand> Command;
+        static Mock<IDbDataParameter> ReturnParameter;
+        static IDbConnection Connection;
+        static int Result;
+
+        Establish context = () =>
+        {
+            Connection = CreateCommand(out Command);
+            ReturnParameter = new Mock<IDbDataParameter>();
+            ReturnParameter.SetupAllProperties();
+            ReturnParameter.Object.Value = 1;
+            Command.Setup(c => c.CreateParameter()).Returns(ReturnParameter.Object);
+        };
+        Because of = () =>
+        {
+            var method = GetAndVerifyMethod<WithOutputAndNoResultsStatic>(
+                typeof(IWithReturnValueMethods).GetMethod(nameof(IWithReturnValueMethods.WithReturnValueAsArgument)));
+            method(Connection, 30, out Result);
+        };
+        mspec.It should_have_commandText_representing_the_stored_procedure = () => Command.Object.CommandText.Should().Be("[dbo].[WithReturnValueAsArgument]");
         mspec.It should_have_executing_the_command_once = () => Command.Verify(c => c.ExecuteNonQuery(), Times.Once());
         mspec.It should_have_setup_the_parameter_type = () => ReturnParameter.Object.DbType.Should().Be(DbType.Int32);
         mspec.It should_have_setup_the_parameter_direction = () => ReturnParameter.Object.Direction.Should().Be(ParameterDirection.ReturnValue);
@@ -478,6 +525,9 @@ namespace CodeOnlyStoredProcedure.Tests
         mspec.It should_have_executing_the_command_once = () => Command.Verify(c => c.ExecuteNonQuery(), Times.Once());
     }
 
+    public delegate StoredProcedure WithOutputAndNoResults(out int result);
+    public delegate void WithOutputAndNoResultsStatic(IDbConnection connection, int timeout, out int result);
+
     internal interface IEmptyMethods
     {
         void Empty();
@@ -488,6 +538,7 @@ namespace CodeOnlyStoredProcedure.Tests
     {
         int WithReturnValue();
         Task<int> WithReturnValueAsync();
+        void WithReturnValueAsArgument(out int returnValue);
     }
 
     internal interface IWithStringResultsMethods

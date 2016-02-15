@@ -15,13 +15,13 @@ Initial Release
   and automatic hierarchy building from multiple result sets.
 * Because it uses the CodeOnlyStoredProcedures library, you can setup global transformers to massage the data, and even map an interface
   to a concrete implementation.</releaseNotes>
-        <tags>StoredProcedure EntityFramework EF</tags>
+      <tags>StoredProcedure ORM Contract Only</tags>
         <dependencies>
             <group targetFramework=".NETFramework4.0">
-                <dependency id="CodeOnlyStoredProcedures" version="2.2.4" />
+                <dependency id="CodeOnlyStoredProcedures" version="2.2.5-pre1" />
             </group>
             <group targetFramework=".NETFramework4.5">
-              <dependency id="CodeOnlyStoredProcedures" version="2.2.4" />
+              <dependency id="CodeOnlyStoredProcedures" version="2.2.5-pre1" />
             </group>
         </dependencies>
         <references>
