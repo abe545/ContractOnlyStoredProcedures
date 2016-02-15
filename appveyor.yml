@@ -9,15 +9,16 @@ branches:
   except:
     - gh-pages
 
-environment:
-  releaseVersion: 0.2.0
+init:
+  - $env:releaseVersion = "0.2.0"
+  - $env:packageVersion = if (Test-Path env:\APPVEYOR_REPO_TAG_NAME) { "$env.APPVEYOR_REPO_TAG_NAME" } else { "$env:releaseVersion" }
 
 assembly_info:
   patch: true
   file: AssemblyInfo.cs
   assembly_version: "$(releaseVersion)"
   assembly_file_version: "{version}"
-  assembly_informational_version: "$(APPVEYOR_REPO_TAG_NAME)"
+  assembly_informational_version: "$(packageVersion)"
 
 nuget:
   account_feed: true
@@ -42,7 +43,7 @@ test:
 
 # create the nuget package artifacts
 after_test:
-  - ps: nuget pack ContractOnlyStoredProcedures.nuspec -Symbols -NonInteractive -Verbosity detailed -Version $env:APPVEYOR_REPO_TAG_NAME
+  - ps: nuget pack ContractOnlyStoredProcedures.nuspec -Symbols -NonInteractive -Verbosity detailed -Version $env:packageVersion
 
 artifacts:
   - path: '*.nupkg'
