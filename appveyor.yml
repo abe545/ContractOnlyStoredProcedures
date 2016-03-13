@@ -24,13 +24,12 @@ nuget:
   account_feed: true
   disable_publish_on_pr: true
 
-platform: Any CPU
+platform: AnyCPU
 
 configuration: Release
 
 before_build:
-  - nuget update -self
-  - nuget restore ContractOnlyStoredProcedures.sln
+  - nuget restore
 
 build:
   project: ContractOnlyStoredProcedures.sln
