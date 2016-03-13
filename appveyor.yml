@@ -29,6 +29,7 @@ platform: Any CPU
 configuration: Release
 
 before_build:
+  - nuget update -self
   - nuget restore
 
 build:
