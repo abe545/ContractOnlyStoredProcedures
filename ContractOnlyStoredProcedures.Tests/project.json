@@ -1,0 +1,14 @@
+﻿{
+  "dependencies": {
+    "CodeOnlyStoredProcedures": "2.2.5",
+    "FluentAssertions": "4.2.2",
+    "Machine.Specifications": "0.9.3",
+    "Moq": "4.2.1510.2205"
+  },
+  "frameworks": {
+    "net45": {}
+  },
+  "runtimes": {
+    "win": {}
+  }
+}

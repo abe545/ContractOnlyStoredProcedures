@@ -1,0 +1,11 @@
+﻿{
+  "dependencies": {
+    "CodeOnlyStoredProcedures": "2.2.5"
+  },
+  "frameworks": {
+    ".NETFramework,Version=v4.0,Profile=Client": { }
+  },
+  "runtimes": {
+    "win": {}
+  }
+}

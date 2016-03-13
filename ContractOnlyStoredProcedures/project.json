@@ -1,0 +1,11 @@
+﻿{
+  "dependencies": {
+    "CodeOnlyStoredProcedures": "2.2.5"
+  },
+  "frameworks": {
+    "net45": {}
+  },
+  "runtimes": {
+    "win": {}
+  }
+}

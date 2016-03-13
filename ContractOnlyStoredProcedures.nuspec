@@ -18,10 +18,10 @@ Initial Release
       <tags>StoredProcedure ORM Contract Only</tags>
         <dependencies>
             <group targetFramework=".NETFramework4.0">
-                <dependency id="CodeOnlyStoredProcedures" version="2.2.5-pre1" />
+                <dependency id="CodeOnlyStoredProcedures" version="2.2.5" />
             </group>
             <group targetFramework=".NETFramework4.5">
-              <dependency id="CodeOnlyStoredProcedures" version="2.2.5-pre1" />
+              <dependency id="CodeOnlyStoredProcedures" version="2.2.5" />
             </group>
         </dependencies>
         <references>
