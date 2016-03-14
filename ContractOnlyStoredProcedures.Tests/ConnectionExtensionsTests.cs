@@ -189,6 +189,42 @@ namespace CodeOnlyStoredProcedure.Tests
         It should_have_set_output_value_to_double_the_input_value = () => Result.Should().Be(3);
     }
 
+    [Subject("GenerateProxy"), Tags("SmokeTest")]
+    public class when_calling_generated_method_on_database_that_takes_a_table_valued_parameter
+    {
+        static IDbConnection Subject;
+        static IEnumerable<SimplePerson> Result;
+
+        Establish context = () => Subject = new SqlConnection(SmokeDb.Connection);
+        Because of = () =>
+        {
+            var proxy = Subject.GenerateProxy<ITableValuedParameterTest>();
+            Result = proxy.usp_ReturnPeople(new[] { new SimplePerson { Name = "Abe", Age = 42 }, new SimplePerson { Name = "foo", Age = 1000 } });
+        };
+
+        It should_return_the_same_number_of_items_passed_in = () => Result.Should().HaveCount(2, "because 2 items were passed into the procedure");
+        It should_return_the_same_age_for_abe_as_was_passed_in = () => Result.Single(p => p.Name == "Abe").Age.Should().Be(42);
+        It should_return_the_same_age_for_foo_as_was_passed_in = () => Result.Single(p => p.Name == "foo").Age.Should().Be(1000);
+    }
+
+    [Subject("GenerateProxy"), Tags("SmokeTest")]
+    public class when_calling_async_generated_method_on_database_that_takes_a_table_valued_parameter
+    {
+        static IDbConnection Subject;
+        static IEnumerable<SimplePerson> Result;
+
+        Establish context = () => Subject = new SqlConnection(SmokeDb.Connection);
+        Because of = () =>
+        {
+            var proxy = Subject.GenerateProxy<ITableValuedParameterTest>();
+            Result = proxy.usp_ReturnPeopleAsync(new[] { new SimplePerson { Name = "Abe", Age = 42 }, new SimplePerson { Name = "foo", Age = 1000 } }).Await().AsTask.Result;
+        };
+
+        It should_return_the_same_number_of_items_passed_in = () => Result.Should().HaveCount(2, "because 2 items were passed into the procedure");
+        It should_return_the_same_age_for_abe_as_was_passed_in = () => Result.Single(p => p.Name == "Abe").Age.Should().Be(42);
+        It should_return_the_same_age_for_foo_as_was_passed_in = () => Result.Single(p => p.Name == "foo").Age.Should().Be(1000);
+    }
+
     internal interface IEmptyDataStoreTest { }
     public interface IOneMethodDataStoreTest
     {
@@ -219,5 +255,18 @@ namespace CodeOnlyStoredProcedure.Tests
     {
         int usp_GetId(Parameter parm);
         Task<int> usp_GetIdAsync(Parameter parm);
+    }
+
+    [TableValuedParameter(TableName = "ReturnMe")]
+    public class SimplePerson
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+    }
+
+    public interface ITableValuedParameterTest
+    {
+        IEnumerable<SimplePerson> usp_ReturnPeople(IEnumerable<SimplePerson> people);
+        Task<IEnumerable<SimplePerson>> usp_ReturnPeopleAsync(IEnumerable<SimplePerson> people);
     }
 }
