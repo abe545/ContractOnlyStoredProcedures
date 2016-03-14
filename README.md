@@ -87,3 +87,22 @@ Just like output values, you can use input/output parameters by specifying them 
 // This can not be an async method, either
 void MutateThis(ref int inOut);
 ```
+
+## Passing Complex Values
+You can pass every property in a class as individual parameters by simply taking it as input:
+```cs
+public class Person
+{
+	public string Name { get; set; }
+}
+
+public interface IDatabase
+{
+    int usp_GetId(Person person);
+}
+
+var db = connection.GenerateProxy<IDatabase>();
+
+// This will be executed like: exec usp_GetId @Name = 'Foo'
+db.usp_GetId(new Person { Name = "Foo" });
+```

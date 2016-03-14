@@ -157,6 +157,38 @@ namespace CodeOnlyStoredProcedure.Tests
         It should_have_set_output_value_to_double_the_input_value = () => Result.Should().Be(84);
     }
 
+    [Subject("GenerateProxy"), Tags("SmokeTest")]
+    public class when_calling_generated_method_on_database_that_uses_complex_parameter
+    {
+        static IDbConnection Subject;
+        static int Result;
+
+        Establish context = () => Subject = new SqlConnection(SmokeDb.Connection);
+        Because of = () =>
+        {
+            var proxy = Subject.GenerateProxy<IWithComplexArgumentTest>();
+            Result = proxy.usp_GetId(new Parameter { Name = "Abe" });
+        };
+
+        It should_have_set_output_value_to_double_the_input_value = () => Result.Should().Be(3);
+    }
+
+    [Subject("GenerateProxy"), Tags("SmokeTest")]
+    public class when_calling_async_generated_method_on_database_that_uses_complex_parameter
+    {
+        static IDbConnection Subject;
+        static int Result;
+
+        Establish context = () => Subject = new SqlConnection(SmokeDb.Connection);
+        Because of = () =>
+        {
+            var proxy = Subject.GenerateProxy<IWithComplexArgumentTest>();
+            Result = proxy.usp_GetIdAsync(new Parameter { Name = "Abe" }).Await();
+        };
+
+        It should_have_set_output_value_to_double_the_input_value = () => Result.Should().Be(3);
+    }
+
     internal interface IEmptyDataStoreTest { }
     public interface IOneMethodDataStoreTest
     {
@@ -180,5 +212,12 @@ namespace CodeOnlyStoredProcedure.Tests
     public interface IReturnValueTest
     {
         void usp_GetId(string name, out int returnValue);
+    }
+
+    public class Parameter { public string Name { get; set; } }
+    public interface IWithComplexArgumentTest
+    {
+        int usp_GetId(Parameter parm);
+        Task<int> usp_GetIdAsync(Parameter parm);
     }
 }

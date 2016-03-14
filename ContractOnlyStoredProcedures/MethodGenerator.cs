@@ -101,7 +101,7 @@ namespace CodeOnlyStoredProcedure
 
                     if (mp.IsIn)
                     {
-                        var gwio = GetWithInputOutput(spType, p.Type);
+                        var gwio = GetWithInputOutputParameter(spType, p.Type);
                         var args = new Expression[] { sp, Expression.Constant(p.Name), p, setter }.Concat(
                             gwio.GetParameters().Skip(4).Select(ip => Expression.Constant(ip.DefaultValue, ip.ParameterType))).ToArray();
                         sp = Expression.Call(gwio, args);
@@ -114,7 +114,7 @@ namespace CodeOnlyStoredProcedure
                     }
                     else
                     {
-                        var gwo = GetWithOutput(spType, p.Type);
+                        var gwo = GetWithOutputParameter(spType, p.Type);
                         var args = new Expression[] { sp, Expression.Constant(p.Name), setter }.Concat(
                             gwo.GetParameters().Skip(3).Select(ip => Expression.Constant(ip.DefaultValue, ip.ParameterType))).ToArray();
                         sp = Expression.Call(gwo, args);
@@ -122,8 +122,10 @@ namespace CodeOnlyStoredProcedure
                     closureParameters.Add(outputTemp);
                     afterExecutionSteps.Add(Expression.Assign(p, outputTemp));
                 }
+                else if (p.Type.IsSimpleType())
+                    sp = Expression.Call(GetWithParameter(spType, p.Type), sp, Expression.Constant(p.Name), p);
                 else
-                    sp = Expression.Call(GetWithInput(spType, p.Type), sp, Expression.Constant(p.Name), p);
+                    sp = Expression.Call(GetWithInput(spType, p.Type), sp, p);
             }
 
             return sp;
@@ -238,10 +240,15 @@ namespace CodeOnlyStoredProcedure
 
         private static MethodInfo GetWithInput(params Type[] typeParameters)
         {
+            return GetExtensionMethod(nameof(StoredProcedureExtensions.WithInput), typeParameters, _ => true);
+        }
+
+        private static MethodInfo GetWithParameter(params Type[] typeParameters)
+        {
             return GetExtensionMethod(nameof(StoredProcedureExtensions.WithParameter), typeParameters, types => types.Count() == 3);
         }
 
-        private static MethodInfo GetWithOutput(params Type[] typeParameters)
+        private static MethodInfo GetWithOutputParameter(params Type[] typeParameters)
         {
             return GetExtensionMethod(nameof(StoredProcedureExtensions.WithOutputParameter), typeParameters, types => types.Count() == 6);
         }
@@ -251,7 +258,7 @@ namespace CodeOnlyStoredProcedure
             return GetExtensionMethod(nameof(StoredProcedureExtensions.WithReturnValue), typeParameters);
         }
 
-        private static MethodInfo GetWithInputOutput(params Type[] typeParameters)
+        private static MethodInfo GetWithInputOutputParameter(params Type[] typeParameters)
         {
             return GetExtensionMethod(nameof(StoredProcedureExtensions.WithInputOutputParameter), typeParameters, types => types.Count() == 7);
         }

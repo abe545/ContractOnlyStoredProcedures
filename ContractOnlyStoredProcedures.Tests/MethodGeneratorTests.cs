@@ -301,6 +301,36 @@ namespace CodeOnlyStoredProcedure.Tests
         mspec.It should_throw_NotSupportedException = () => Exception.Should().BeOfType(typeof(NotSupportedException));
     }
 
+    [Subject("CreateStoredProcedure")]
+    public class when_creating_a_stored_procedure_that_has_a_complex_input_argument : MethodGeneratorTestBase
+    {
+        static StoredProcedure StoredProcedure;
+        Because of = () =>
+        {
+            StoredProcedure = GetAndVerifyCreateStoredProcedureResultExpression<Func<Input, StoredProcedure>>(
+                typeof(IWithComplexArgumentMethods).GetMethod(nameof(IWithComplexArgumentMethods.WithArgument)))(new Input { Name = "foo" });
+        };
+
+        mspec.It should_be_named_WithArgument = () => StoredProcedure.Name.Should().Be("WithArgument");
+        mspec.It should_have_dbo_schema = () => StoredProcedure.Schema.Should().Be("dbo");
+        mspec.It should_show_parameter_values_from_ToString = () => StoredProcedure.ToString().Should().Be("[dbo].[WithArgument](@Name = 'foo')");
+    }
+
+    [Subject("CreateStoredProcedure")]
+    public class when_creating_an_async_stored_procedure_that_has_a_complex_input_argument : MethodGeneratorTestBase
+    {
+        static StoredProcedure StoredProcedure;
+        Because of = () =>
+        {
+            StoredProcedure = GetAndVerifyCreateStoredProcedureResultExpression<Func<Input, StoredProcedure>>(
+                typeof(IWithComplexArgumentMethods).GetMethod(nameof(IWithComplexArgumentMethods.WithArgumentAsync)))(new Input { Name = "foo" });
+        };
+
+        mspec.It should_be_named_WithArgument = () => StoredProcedure.Name.Should().Be("WithArgument");
+        mspec.It should_have_dbo_schema = () => StoredProcedure.Schema.Should().Be("dbo");
+        mspec.It should_show_parameter_values_from_ToString = () => StoredProcedure.ToString().Should().Be("[dbo].[WithArgument](@Name = 'foo')");
+    }
+
     [Subject("CreateMethod")]
     public class when_creating_a_method_that_has_no_arguments_and_no_results : MethodGeneratorTestBase
     {
@@ -525,6 +555,39 @@ namespace CodeOnlyStoredProcedure.Tests
         mspec.It should_have_executing_the_command_once = () => Command.Verify(c => c.ExecuteNonQuery(), Times.Once());
     }
 
+    [Subject("CreateMethod")]
+    public class when_creating_a_method_that_has_a_complex_argument_and_no_results : MethodGeneratorTestBase
+    {
+        static Mock<IDbCommand> Command;
+        static IDbConnection Connection;
+        static Mock<IDbDataParameter> InputParameter;
+
+        Establish context = () =>
+        {
+            Connection = CreateCommand(out Command);
+            InputParameter = new Mock<IDbDataParameter>();
+            InputParameter.SetupAllProperties();
+            Command.Setup(c => c.CreateParameter()).Returns(InputParameter.Object);
+        };
+
+        Because of = () =>
+        {
+            List<ParameterExpression> expressions;
+            var method = typeof(IWithComplexArgumentMethods).GetMethod(nameof(IWithComplexArgumentMethods.WithArgument)).CreateMethod(
+                dbConnectionExpression,
+                timeoutExpression,
+                out expressions);
+            Expression.Lambda<Action<IDbConnection, Input, int>>(method, dbConnectionExpression, expressions.Single(), timeoutExpression)
+                      .Compile()
+                      .Invoke(Connection, new Input { Name = "foo" }, 30);
+        };
+        mspec.It should_set_input_parameter_type_to_string = () => InputParameter.Object.DbType.Should().Be(DbType.String);
+        mspec.It should_set_input_parameter_value_to_foo = () => InputParameter.Object.Value.Should().Be("foo");
+        mspec.It should_set_input_parameter_ParameterName_to_Name = () => InputParameter.Object.ParameterName.Should().Be("Name");
+        mspec.It should_have_commandText_representing_the_stored_procedure = () => Command.Object.CommandText.Should().Be("[dbo].[WithArgument]");
+        mspec.It should_have_executing_the_command_once = () => Command.Verify(c => c.ExecuteNonQuery(), Times.Once());
+    }
+
     public delegate StoredProcedure WithOutputAndNoResults(out int result);
     public delegate void WithOutputAndNoResultsStatic(IDbConnection connection, int timeout, out int result);
 
@@ -567,5 +630,12 @@ namespace CodeOnlyStoredProcedure.Tests
     {
         void WithOutputArgument(out int result);
         Task ShouldThrow(out int result);
+    }
+
+    internal class Input { public string Name { get; set; } }
+    internal interface IWithComplexArgumentMethods
+    {
+        void WithArgument(Input input);
+        Task WithArgumentAsync(Input input);
     }
 }
