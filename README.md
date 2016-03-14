@@ -106,3 +106,21 @@ var db = connection.GenerateProxy<IDatabase>();
 // This will be executed like: exec usp_GetId @Name = 'Foo'
 db.usp_GetId(new Person { Name = "Foo" });
 ```
+
+## Passing Table Valued parameters
+Like complex values, you can pass a Table Valued Parameter by simply declaring the method to take an IEnumerable<string>
+```cs
+public interface IDatabase
+{
+	void usp_SavePeople(IEnumerable<Person> people);
+}
+```
+
+If you need to control the schema or type name of the TVP, you can do so by decorating the class with the TableValuedParameterAttribute from CodeOnlyStoredProcedures (all other properties will be ignored by this library, but may be used by the CodeOnlyStoredProcedures library):
+```cs
+[TableValuedParameter(Schema = "Foo", TableName = "Bar")]
+public class Person
+{
+	public string Name { get; set; }
+}
+```
