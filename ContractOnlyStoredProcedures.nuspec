@@ -8,7 +8,10 @@
         <projectUrl>https://github.com/abe545/ContractOnlyStoredProcedures</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Easily call stored procedures by writing an interface that describes their names, inputs, and results. Uses the CodeOnlyStoredProcedures library to acually execute the stored procedures.</description>
-        <releaseNotes>0.1.0
+        <releaseNotes>0.2.0
+* Added ability to pass complex type to a method in a database proxy
+
+0.1.0
 Initial Release
 * Includes ability to automatically implement an interface to call stored procedures via the methods defined in the interface.
 * Should support all basic stored procedures supported by CodeOnlyStoredProcedures library such as multiple result sets, output parameters,
