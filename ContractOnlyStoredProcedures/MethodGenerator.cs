@@ -124,6 +124,24 @@ namespace CodeOnlyStoredProcedure
                 }
                 else if (p.Type.IsSimpleType())
                     sp = Expression.Call(GetWithParameter(spType, p.Type), sp, Expression.Constant(p.Name), p);
+                else if (p.Type.IsEnumeratedType())
+                {
+                    var itemType = p.Type.GetEnumeratedType();
+
+                    var typeSchema = "dbo";
+                    var typeName = itemType.Name;
+
+                    var tvpAttr = itemType.GetCustomAttributes(typeof(TableValuedParameterAttribute), true).OfType<TableValuedParameterAttribute>().FirstOrDefault();
+                    if (tvpAttr != null)
+                    {
+                        if (!string.IsNullOrWhiteSpace(tvpAttr.Schema))
+                            typeSchema = tvpAttr.Schema;
+                        if (!string.IsNullOrWhiteSpace(tvpAttr.TableName))
+                            typeName = tvpAttr.TableName;
+                    }
+
+                    sp = Expression.Call(GetWithTableValuedParameter(spType, itemType), sp, Expression.Constant(p.Name), p, Expression.Constant(typeSchema), Expression.Constant(typeName));
+                }
                 else
                     sp = Expression.Call(GetWithInput(spType, p.Type), sp, p);
             }
@@ -240,7 +258,7 @@ namespace CodeOnlyStoredProcedure
 
         private static MethodInfo GetWithInput(params Type[] typeParameters)
         {
-            return GetExtensionMethod(nameof(StoredProcedureExtensions.WithInput), typeParameters, _ => true);
+            return GetExtensionMethod(nameof(StoredProcedureExtensions.WithInput), typeParameters);
         }
 
         private static MethodInfo GetWithParameter(params Type[] typeParameters)
@@ -261,6 +279,11 @@ namespace CodeOnlyStoredProcedure
         private static MethodInfo GetWithInputOutputParameter(params Type[] typeParameters)
         {
             return GetExtensionMethod(nameof(StoredProcedureExtensions.WithInputOutputParameter), typeParameters, types => types.Count() == 7);
+        }
+
+        private static MethodInfo GetWithTableValuedParameter(params Type[] typeParameters)
+        {
+            return GetExtensionMethod(nameof(StoredProcedureExtensions.WithTableValuedParameter), typeParameters, types => types.Count() == 5);
         }
 
         private static MethodInfo GetExtensionMethod(string methodName, Type[] typeParameters, Func<IEnumerable<Type>, bool> parameterTypeFilter = null)

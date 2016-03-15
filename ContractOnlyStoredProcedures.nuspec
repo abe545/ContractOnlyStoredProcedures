@@ -10,6 +10,7 @@
         <description>Easily call stored procedures by writing an interface that describes their names, inputs, and results. Uses the CodeOnlyStoredProcedures library to acually execute the stored procedures.</description>
         <releaseNotes>0.2.0
 * Added ability to pass complex type to a method in a database proxy
+* Added ability to pass Table Valued Parameters to a method in a database proxy
 
 0.1.0
 Initial Release
