@@ -143,6 +143,9 @@
     <Compile Include="..\ContractOnlyStoredProcedures\MethodGenerator.cs">
       <Link>MethodGenerator.cs</Link>
     </Compile>
+    <Compile Include="..\ContractOnlyStoredProcedures\StoredProcedureAttribute.cs">
+      <Link>StoredProcedureAttribute.cs</Link>
+    </Compile>
     <Compile Include="..\ContractOnlyStoredProcedures\TypeExtensions.cs">
       <Link>TypeExtensions.cs</Link>
     </Compile>

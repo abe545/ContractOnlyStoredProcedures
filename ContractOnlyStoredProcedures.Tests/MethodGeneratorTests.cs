@@ -331,6 +331,62 @@ namespace CodeOnlyStoredProcedure.Tests
         mspec.It should_show_parameter_values_from_ToString = () => StoredProcedure.ToString().Should().Be("[dbo].[WithArgument](@Name = 'foo')");
     }
 
+    [Subject("CreateStoredProcedure")]
+    public class whaen_creating_a_stored_procedure_that_has_been_renamed : MethodGeneratorTestBase
+    {
+        static StoredProcedure StoredProcedure;
+        Because of = () =>
+        {
+            StoredProcedure = GetAndVerifyCreateStoredProcedureResultExpression<Func<StoredProcedure>>(
+                typeof(IRenamedMethods).GetMethod(nameof(IRenamedMethods.Foo)))();
+        };
+
+        mspec.It should_be_named_Renamed = () => StoredProcedure.Name.Should().Be("Renamed");
+        mspec.It should_have_dbo_schema = () => StoredProcedure.Schema.Should().Be("dbo");
+    }
+
+    [Subject("CreateStoredProcedure")]
+    public class whaen_creating_an_async_stored_procedure_that_has_been_renamed : MethodGeneratorTestBase
+    {
+        static StoredProcedure StoredProcedure;
+        Because of = () =>
+        {
+            StoredProcedure = GetAndVerifyCreateStoredProcedureResultExpression<Func<StoredProcedure>>(
+                typeof(IRenamedMethods).GetMethod(nameof(IRenamedMethods.Bar)))();
+        };
+
+        mspec.It should_be_named_Renamed = () => StoredProcedure.Name.Should().Be("Renamed");
+        mspec.It should_have_dbo_schema = () => StoredProcedure.Schema.Should().Be("dbo");
+    }
+
+    [Subject("CreateStoredProcedure")]
+    public class whaen_creating_a_stored_procedure_that_has_been_renamed_and_put_in_other_schema : MethodGeneratorTestBase
+    {
+        static StoredProcedure StoredProcedure;
+        Because of = () =>
+        {
+            StoredProcedure = GetAndVerifyCreateStoredProcedureResultExpression<Func<StoredProcedure>>(
+                typeof(IRenamedMethods).GetMethod(nameof(IRenamedMethods.Fob)))();
+        };
+
+        mspec.It should_be_named_Renamed = () => StoredProcedure.Name.Should().Be("Renamed");
+        mspec.It should_have_dbo_schema = () => StoredProcedure.Schema.Should().Be("Other");
+    }
+
+    [Subject("CreateStoredProcedure")]
+    public class whaen_creating_an_async_stored_procedure_that_has_been_renamed_and_put_in_other_schema : MethodGeneratorTestBase
+    {
+        static StoredProcedure StoredProcedure;
+        Because of = () =>
+        {
+            StoredProcedure = GetAndVerifyCreateStoredProcedureResultExpression<Func<StoredProcedure>>(
+                typeof(IRenamedMethods).GetMethod(nameof(IRenamedMethods.Bab)))();
+        };
+
+        mspec.It should_be_named_Renamed = () => StoredProcedure.Name.Should().Be("Renamed");
+        mspec.It should_have_dbo_schema = () => StoredProcedure.Schema.Should().Be("Other");
+    }
+
     [Subject("CreateMethod")]
     public class when_creating_a_method_that_has_no_arguments_and_no_results : MethodGeneratorTestBase
     {
@@ -588,6 +644,70 @@ namespace CodeOnlyStoredProcedure.Tests
         mspec.It should_have_executing_the_command_once = () => Command.Verify(c => c.ExecuteNonQuery(), Times.Once());
     }
 
+    [Subject("CreateMethod")]
+    public class when_creating_a_method_that_calls_a_stored_procedure_with_a_different_name : MethodGeneratorTestBase
+    {
+        static Mock<IDbCommand> Command;
+        static IDbConnection Connection;
+
+        Establish context = () => Connection = CreateCommand(out Command);
+        Because of = () =>
+        {
+            var method = GetAndVerifyMethod<Action<IDbConnection, int>>(typeof(IRenamedMethods).GetMethod(nameof(IRenamedMethods.Foo)));
+            method(Connection, 30);
+        };
+        mspec.It should_have_commandText_representing_the_stored_procedure = () => Command.Object.CommandText.Should().Be("[dbo].[Renamed]");
+        mspec.It should_have_executing_the_command_once = () => Command.Verify(c => c.ExecuteNonQuery(), Times.Once());
+    }
+
+    [Subject("CreateMethod")]
+    public class when_creating_an_async_method_that_calls_a_stored_procedure_with_a_different_name : MethodGeneratorTestBase
+    {
+        static Mock<IDbCommand> Command;
+        static IDbConnection Connection;
+
+        Establish context = () => Connection = CreateCommand(out Command);
+        Because of = () =>
+        {
+            var method = GetAndVerifyMethod<Func<IDbConnection, int, Task>>(typeof(IRenamedMethods).GetMethod(nameof(IRenamedMethods.Bar)));
+            method(Connection, 30).Await();
+        };
+        mspec.It should_have_commandText_representing_the_stored_procedure = () => Command.Object.CommandText.Should().Be("[dbo].[Renamed]");
+        mspec.It should_have_executing_the_command_once = () => Command.Verify(c => c.ExecuteNonQuery(), Times.Once());
+    }
+
+    [Subject("CreateMethod")]
+    public class when_creating_a_method_that_calls_a_stored_procedure_with_a_different_name_and_schema : MethodGeneratorTestBase
+    {
+        static Mock<IDbCommand> Command;
+        static IDbConnection Connection;
+
+        Establish context = () => Connection = CreateCommand(out Command);
+        Because of = () =>
+        {
+            var method = GetAndVerifyMethod<Action<IDbConnection, int>>(typeof(IRenamedMethods).GetMethod(nameof(IRenamedMethods.Fob)));
+            method(Connection, 30);
+        };
+        mspec.It should_have_commandText_representing_the_stored_procedure = () => Command.Object.CommandText.Should().Be("[Other].[Renamed]");
+        mspec.It should_have_executing_the_command_once = () => Command.Verify(c => c.ExecuteNonQuery(), Times.Once());
+    }
+
+    [Subject("CreateMethod")]
+    public class when_creating_an_async_method_that_calls_a_stored_procedure_with_a_different_name_and_schema : MethodGeneratorTestBase
+    {
+        static Mock<IDbCommand> Command;
+        static IDbConnection Connection;
+
+        Establish context = () => Connection = CreateCommand(out Command);
+        Because of = () =>
+        {
+            var method = GetAndVerifyMethod<Func<IDbConnection, int, Task>>(typeof(IRenamedMethods).GetMethod(nameof(IRenamedMethods.Bab)));
+            method(Connection, 30).Await();
+        };
+        mspec.It should_have_commandText_representing_the_stored_procedure = () => Command.Object.CommandText.Should().Be("[Other].[Renamed]");
+        mspec.It should_have_executing_the_command_once = () => Command.Verify(c => c.ExecuteNonQuery(), Times.Once());
+    }
+
     public delegate StoredProcedure WithOutputAndNoResults(out int result);
     public delegate void WithOutputAndNoResultsStatic(IDbConnection connection, int timeout, out int result);
 
@@ -637,5 +757,17 @@ namespace CodeOnlyStoredProcedure.Tests
     {
         void WithArgument(Input input);
         Task WithArgumentAsync(Input input);
+    }
+
+    internal interface IRenamedMethods
+    {
+        [StoredProcedure(Name = "Renamed")]
+        void Foo();
+        [StoredProcedure(Name = "Renamed")]
+        Task Bar();
+        [StoredProcedure(Name = "Renamed", Schema = "Other")]
+        void Fob();
+        [StoredProcedure(Name = "Renamed", Schema = "Other")]
+        Task Bab();
     }
 }
