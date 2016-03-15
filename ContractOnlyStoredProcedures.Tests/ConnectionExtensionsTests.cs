@@ -225,6 +225,36 @@ namespace CodeOnlyStoredProcedure.Tests
         It should_return_the_same_age_for_foo_as_was_passed_in = () => Result.Single(p => p.Name == "foo").Age.Should().Be(1000);
     }
 
+    public class when_calling_method_on_database_that_is_renamed_through_the_StoredProcedureAttribute
+    {
+        static IDbConnection Subject;
+        static int Result;
+
+        Establish context = () => Subject = new SqlConnection(SmokeDb.Connection);
+        Because of = () =>
+        {
+            var proxy = Subject.GenerateProxy<IAttributedTest>();
+            Result = proxy.Foo("Abe");
+        };
+
+        It should_have_returned_length_of_input = () => Result.Should().Be(3);
+    }
+
+    public class when_calling_an_async_method_on_database_that_is_renamed_through_the_StoredProcedureAttribute
+    {
+        static IDbConnection Subject;
+        static int Result;
+
+        Establish context = () => Subject = new SqlConnection(SmokeDb.Connection);
+        Because of = () =>
+        {
+            var proxy = Subject.GenerateProxy<IAttributedTest>();
+            Result = proxy.Bar("Abe").Await();
+        };
+
+        It should_have_returned_length_of_input = () => Result.Should().Be(3);
+    }
+
     internal interface IEmptyDataStoreTest { }
     public interface IOneMethodDataStoreTest
     {
@@ -268,5 +298,13 @@ namespace CodeOnlyStoredProcedure.Tests
     {
         IEnumerable<SimplePerson> usp_ReturnPeople(IEnumerable<SimplePerson> people);
         Task<IEnumerable<SimplePerson>> usp_ReturnPeopleAsync(IEnumerable<SimplePerson> people);
+    }
+
+    public interface IAttributedTest
+    {
+        [StoredProcedure(Name = "usp_GetId")]
+        int Foo(string name);
+        [StoredProcedure(Name = "usp_GetId")]
+        Task<int> Bar(string name);
     }
 }

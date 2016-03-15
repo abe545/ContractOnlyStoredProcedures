@@ -134,6 +134,7 @@
     <Compile Include="ConnectionExtensions.cs" />
     <Compile Include="InterfaceProxyGenerator.cs" />
     <Compile Include="MethodGenerator.cs" />
+    <Compile Include="StoredProcedureAttribute.cs" />
     <Compile Include="TypeExtensions.cs" />
   </ItemGroup>
   <ItemGroup>

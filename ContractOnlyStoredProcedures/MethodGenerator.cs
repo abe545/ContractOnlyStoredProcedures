@@ -44,6 +44,15 @@ namespace CodeOnlyStoredProcedure
             if (isAsync && name.EndsWith("Async", StringComparison.InvariantCultureIgnoreCase))
                 name = name.Substring(0, name.Length - 5);
 
+            var spAttr = method.GetCustomAttributes(typeof(StoredProcedureAttribute), true).OfType<StoredProcedureAttribute>().FirstOrDefault();
+            if (spAttr != null)
+            {
+                if (!string.IsNullOrWhiteSpace(spAttr.Name))
+                    name = spAttr.Name;
+                if (!string.IsNullOrWhiteSpace(spAttr.Schema))
+                    schema = spAttr.Schema;
+            }
+
             // var sp = StoredProcedure.Create(schema, name);
             Expression sp = Expression.Call(create, Expression.Constant(schema), Expression.Constant(name));
 
