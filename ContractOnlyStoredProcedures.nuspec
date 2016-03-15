@@ -11,6 +11,7 @@
         <releaseNotes>0.2.0
 * Added ability to pass complex type to a method in a database proxy
 * Added ability to pass Table Valued Parameters to a method in a database proxy
+* Added ability to specify a name and/or schema of the stored procedure to call for a given proxy method
 
 0.1.0
 Initial Release

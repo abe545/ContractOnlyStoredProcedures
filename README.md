@@ -56,6 +56,19 @@ IEnumerable<string> GetNames();
 Task<IEnumerable<string>> GetNamesAsync();
 ```
 
+## Do I really have to name my proxy methods the same as my stored procedures?
+Nope!
+You can control the name/schema of the stored procedure to call with the StoredProcedureAttribute:
+```cs
+public interface IDatabase
+{
+    [StoredProcedure(Name = "usp_GetId")]
+    int GetId(string name);
+	[StoredProcedure(Name = "usp_GetNames", Schema = "User")]
+    IEnumerable<string> GetUserNames();
+}
+```
+
 ## Return Values
 You can get a return value by specifying a method that returns an int
 ```cs
